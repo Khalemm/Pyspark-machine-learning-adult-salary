@@ -100,3 +100,14 @@ model = Pipeline(stages= [indexer_feature]+[indexer_label]+[encoders]+[assembler
 pred_lr = model.transform(test)
 pred_lr.select('prediction', 'income_indexed', 'features').show()
 pred_lr.show(n=1, vertical=True, truncate=False)
+
+preds_and_labels = pred_lr.select(['prediction','income_indexed']).withColumn('label', F.col('income_indexed').cast(FloatType())).orderBy('prediction')
+
+#select only prediction and label columns
+preds_and_labels = preds_and_labels.select(['prediction','label'])
+
+metrics = MulticlassMetrics(preds_and_labels.rdd.map(tuple))
+
+print(metrics.confusionMatrix().toArray())
+
+metrics.accuracy
