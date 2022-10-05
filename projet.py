@@ -19,7 +19,7 @@ spark = SparkSession.builder.getOrCreate()
 spark
 
 income_adult = "adult.csv"    # full csv (not the cleaned csv) 
-df = ps.read_csv(income)
+df = ps.read_csv(income_adult)
 df.head()
 
 sdf = spark.read.csv(income, header=True, inferSchema=True).cache()
