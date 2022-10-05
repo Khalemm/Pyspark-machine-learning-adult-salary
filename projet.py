@@ -83,3 +83,20 @@ Pipeline(stages= [indexer_feature]+[indexer_label]+[encoders]+[assembler]).fit(s
 train, test = sdf.randomSplit([0.7, 0.3],seed = 11)
 train.show(n=1, truncate=False, vertical=True)
 test.show(n=1, truncate=False, vertical=True)
+
+#LOGISTIC REGRESSION
+
+from pyspark.ml.classification import LogisticRegression
+
+lr = LogisticRegression(labelCol='income_indexed', featuresCol='features')
+
+train, test = spark.read.csv(income_adult, header=True, inferSchema=True) \
+     .cache() \
+     .randomSplit([0.7, 0.3], seed = 5)
+
+train.cache(), test.cache()
+
+model = Pipeline(stages= [indexer_feature]+[indexer_label]+[encoders]+[assembler]+[lr]).fit(train)
+pred_lr = model.transform(test)
+pred_lr.select('prediction', 'income_indexed', 'features').show()
+pred_lr.show(n=1, vertical=True, truncate=False)
