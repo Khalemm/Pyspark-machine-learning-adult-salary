@@ -22,7 +22,7 @@ income_adult = "adult.csv"    # full csv (not the cleaned csv)
 df = ps.read_csv(income_adult)
 df.head()
 
-sdf = spark.read.csv(income, header=True, inferSchema=True).cache()
+sdf = spark.read.csv(income_adult, header=True, inferSchema=True).cache()
 sdf.show()
 sdf.is_cached            # Checks if df is cached
 #  How many rows?
