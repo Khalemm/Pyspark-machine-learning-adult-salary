@@ -44,7 +44,7 @@ df[cols_cat].describe()
 sdf.columns
 labelCol = 'income'
 
-feature_numeric = ['age', 'fnlwgt', 'education-num','capital-gain','capital-loss','hours-per-week']
+feature_numeric = ['age', 'fnlwgt', 'educational-num','capital-gain','capital-loss','hours-per-week']
 
 feature_cat = ['workclass', 'education', 'marital-status','occupation', 'relationship','race', 'gender', 'native-country']
 feature_cat_indexed = [col+'_indexed' for col in feature_cat]
