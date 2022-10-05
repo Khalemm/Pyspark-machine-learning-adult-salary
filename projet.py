@@ -55,3 +55,31 @@ feature_cat_encoded
 print(feature_cat_indexed)
     
 print(feature_cat_encoded)
+
+
+#STRING INDEXER
+indexer_feature = StringIndexer(inputCols=feature_cat, handleInvalid='skip', outputCols=feature_cat_indexed)
+indexer_label = StringIndexer(inputCol=labelCol, handleInvalid='skip', outputCol=labelCol+'_indexed')
+
+sdf = indexer_feature.fit(sdf).transform(sdf)
+#sdf.show(n=1, truncate=False, vertical=True)
+
+#ONEHOTENCODER
+
+encoders = OneHotEncoder(dropLast=False, inputCols=feature_cat_indexed, outputCols=feature_cat_encoded)  # handleInvalid='skip',  
+sdf = encoders.fit(sdf).transform(sdf)
+sdf.select(feature_cat_indexed+feature_cat_encoded).show(n=2, truncate=False, vertical=True)
+
+#VECTORASSEMBLER
+
+sdf = spark.read.csv(income_adult, header=True, inferSchema=True).cache()
+assembler = VectorAssembler(inputCols=feature_cat_encoded+feature_numeric, outputCol='features')
+
+#PIPELINE
+Pipeline(stages= [indexer_feature]+[indexer_label]+[encoders]+[assembler]).fit(sdf).transform(sdf).show(n=1, truncate=False, vertical=True)
+
+#SEPARATION ENTRE DONNE DE TEST ET TRAIN
+
+train, test = sdf.randomSplit([0.7, 0.3],seed = 11)
+train.show(n=1, truncate=False, vertical=True)
+test.show(n=1, truncate=False, vertical=True)
