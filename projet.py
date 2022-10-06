@@ -157,7 +157,7 @@ print("Test accuracy = " + str(nbaccuracy))
 #SVM
 from pyspark.ml.classification import LinearSVC
 svm = LinearSVC(labelCol="income_indexed", featuresCol="features")
-svm_model = Pipeline(stages= [indexer_feature]+[indexer_label]+[encoders]+[assembler]+[nb]).fit(train)
+svm_model = Pipeline(stages= [indexer_feature]+[indexer_label]+[encoders]+[assembler]+[svm]).fit(train)
 svm_prediction = svm_model.transform(test)
 svm_prediction.select("prediction", "income_indexed", "features").show()
 
@@ -174,16 +174,9 @@ print("Test accuracy = " + str(nbaccuracy))
 
 from pyspark.ml.classification import GBTClassifier
 gbt = GBTClassifier(labelCol="income_indexed", featuresCol="features",maxIter=10)
-gbt_model = Pipeline(stages= [indexer_feature]+[indexer_label]+[encoders]+[assembler]+[nb]).fit(train)
+gbt_model = Pipeline(stages= [indexer_feature]+[indexer_label]+[encoders]+[assembler]+[gbt]).fit(train)
 gbt_prediction = gbt_model.transform(test)
 
-#matrice de confusion
-preds_and_labels = gbt_model.select(['prediction','income_indexed']).withColumn('label', F.col('income_indexed').cast(FloatType())).orderBy('prediction')
-preds_and_labels = preds_and_labels.select(['prediction','label'])
-metrics = MulticlassMetrics(preds_and_labels.rdd.map(tuple))
-print(metrics.confusionMatrix().toArray())
-
-gbt_prediction.select("prediction", "income_indexed", "features").show()
 
 #matrice de confusion
 preds_and_labels = gbt_prediction.select(['prediction','income_indexed']).withColumn('label', F.col('income_indexed').cast(FloatType())).orderBy('prediction')
