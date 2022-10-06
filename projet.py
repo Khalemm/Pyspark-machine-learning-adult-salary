@@ -101,13 +101,10 @@ pred_lr = model.transform(test)
 pred_lr.select('prediction', 'income_indexed', 'features').show()
 pred_lr.show(n=1, vertical=True, truncate=False)
 
+#matrice de confusion
 preds_and_labels = pred_lr.select(['prediction','income_indexed']).withColumn('label', F.col('income_indexed').cast(FloatType())).orderBy('prediction')
-
-#select only prediction and label columns
 preds_and_labels = preds_and_labels.select(['prediction','label'])
-
 metrics = MulticlassMetrics(preds_and_labels.rdd.map(tuple))
-
 print(metrics.confusionMatrix().toArray())
 
 metrics.accuracy
@@ -123,6 +120,12 @@ tree = DecisionTreeClassifier(labelCol='income_indexed', featuresCol='features')
 model = Pipeline(stages= [indexer_feature]+[indexer_label]+[encoders]+[assembler]+[tree]).fit(train)
 pred_tree = model.transform(test)
 pred_tree.select('prediction', 'income_indexed', 'features').show()
+
+#matrice de confusion
+preds_and_labels = pred_tree.select(['prediction','income_indexed']).withColumn('label', F.col('income_indexed').cast(FloatType())).orderBy('prediction')
+preds_and_labels = preds_and_labels.select(['prediction','label'])
+metrics = MulticlassMetrics(preds_and_labels.rdd.map(tuple))
+print(metrics.confusionMatrix().toArray())
 
 accuracy_tree = evaluator.evaluate(pred_tree)
 print("Accuracy of DecisionTree is = %g"% (accuracy_tree))
@@ -142,6 +145,12 @@ nb_model = Pipeline(stages= [indexer_feature]+[indexer_label]+[encoders]+[assemb
 nb_prediction = nb_model.transform(test)
 nb_prediction.select("prediction", "income_indexed", "features").show()
 
+#matrice de confusion
+preds_and_labels = nb_prediction.select(['prediction','income_indexed']).withColumn('label', F.col('income_indexed').cast(FloatType())).orderBy('prediction')
+preds_and_labels = preds_and_labels.select(['prediction','label'])
+metrics = MulticlassMetrics(preds_and_labels.rdd.map(tuple))
+print(metrics.confusionMatrix().toArray())
+
 nbaccuracy = evaluator.evaluate(nb_prediction) 
 print("Test accuracy = " + str(nbaccuracy))
 
@@ -152,6 +161,12 @@ svm_model = Pipeline(stages= [indexer_feature]+[indexer_label]+[encoders]+[assem
 svm_prediction = svm_model.transform(test)
 svm_prediction.select("prediction", "income_indexed", "features").show()
 
+#matrice de confusion
+preds_and_labels = svm_prediction.select(['prediction','income_indexed']).withColumn('label', F.col('income_indexed').cast(FloatType())).orderBy('prediction')
+preds_and_labels = preds_and_labels.select(['prediction','label'])
+metrics = MulticlassMetrics(preds_and_labels.rdd.map(tuple))
+print(metrics.confusionMatrix().toArray())
+
 svm_accuracy = evaluator.evaluate(svm_prediction)
 print("Test accuracy = " + str(nbaccuracy)) 
 
@@ -161,7 +176,20 @@ from pyspark.ml.classification import GBTClassifier
 gbt = GBTClassifier(labelCol="income_indexed", featuresCol="features",maxIter=10)
 gbt_model = Pipeline(stages= [indexer_feature]+[indexer_label]+[encoders]+[assembler]+[nb]).fit(train)
 gbt_prediction = gbt_model.transform(test)
+
+#matrice de confusion
+preds_and_labels = gbt_model.select(['prediction','income_indexed']).withColumn('label', F.col('income_indexed').cast(FloatType())).orderBy('prediction')
+preds_and_labels = preds_and_labels.select(['prediction','label'])
+metrics = MulticlassMetrics(preds_and_labels.rdd.map(tuple))
+print(metrics.confusionMatrix().toArray())
+
 gbt_prediction.select("prediction", "income_indexed", "features").show()
+
+#matrice de confusion
+preds_and_labels = gbt_prediction.select(['prediction','income_indexed']).withColumn('label', F.col('income_indexed').cast(FloatType())).orderBy('prediction')
+preds_and_labels = preds_and_labels.select(['prediction','label'])
+metrics = MulticlassMetrics(preds_and_labels.rdd.map(tuple))
+print(metrics.confusionMatrix().toArray())
 
 gbt_accuracy = evaluator.evaluate(gbt_prediction)
 
