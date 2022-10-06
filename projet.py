@@ -111,3 +111,31 @@ metrics = MulticlassMetrics(preds_and_labels.rdd.map(tuple))
 print(metrics.confusionMatrix().toArray())
 
 metrics.accuracy
+
+#DECISION TREE CLASSIFIER
+from pyspark.ml.classification import DecisionTreeClassifier
+
+evaluator = MulticlassClassificationEvaluator(labelCol='income_indexed', predictionCol='prediction', metricName='accuracy')
+
+
+tree = DecisionTreeClassifier(labelCol='income_indexed', featuresCol='features')
+
+model = Pipeline(stages= [indexer_feature]+[indexer_label]+[encoders]+[assembler]+[tree]).fit(train)
+pred_tree = model.transform(test)
+pred_tree.select('prediction', 'income_indexed', 'features').show()
+
+accuracy_tree = evaluator.evaluate(pred_tree)
+print("Accuracy of DecisionTree is = %g"% (accuracy_tree))
+print("Error of DecisionTree = %g " % (1.0 - accuracy_tree))
+
+#NAIVE BAYEs
+
+from pyspark.ml.classification import NaiveBayes
+
+nb = NaiveBayes(labelCol="income_indexed", featuresCol="features")
+nb_model = Pipeline(stages= [indexer_feature]+[indexer_label]+[encoders]+[assembler]+[nb]).fit(train)
+nb_prediction = nb_model.transform(test)
+nb_prediction.select("prediction", "income_indexed", "features").show()
+
+nbaccuracy = evaluator.evaluate(nb_prediction) 
+print("Test accuracy = " + str(nbaccuracy))
