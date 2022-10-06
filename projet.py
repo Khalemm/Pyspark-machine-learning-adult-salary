@@ -154,3 +154,15 @@ svm_prediction.select("prediction", "income_indexed", "features").show()
 
 svm_accuracy = evaluator.evaluate(svm_prediction)
 print("Test accuracy = " + str(nbaccuracy)) 
+
+# Gradient Boosted Tree
+
+from pyspark.ml.classification import GBTClassifier
+gbt = GBTClassifier(labelCol="income_indexed", featuresCol="features",maxIter=10)
+gbt_model = Pipeline(stages= [indexer_feature]+[indexer_label]+[encoders]+[assembler]+[nb]).fit(train)
+gbt_prediction = gbt_model.transform(test)
+gbt_prediction.select("prediction", "income_indexed", "features").show()
+
+gbt_accuracy = evaluator.evaluate(gbt_prediction)
+
+print("Test accuracy = " + str(nbaccuracy))
