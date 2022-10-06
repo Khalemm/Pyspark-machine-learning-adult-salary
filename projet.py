@@ -132,6 +132,11 @@ print("Error of DecisionTree = %g " % (1.0 - accuracy_tree))
 
 from pyspark.ml.classification import NaiveBayes
 
+#Toutes les features sont indépendantes
+#Naive Bayes repose sur un calcul de proba
+#Il va calculer la proba qu'une prédiction soit vraie la proba qu'elle soit fausse
+#En comparant les 2 résultats on peut déduire à quelle classe appartient la donnée
+
 nb = NaiveBayes(labelCol="income_indexed", featuresCol="features")
 nb_model = Pipeline(stages= [indexer_feature]+[indexer_label]+[encoders]+[assembler]+[nb]).fit(train)
 nb_prediction = nb_model.transform(test)
@@ -139,3 +144,13 @@ nb_prediction.select("prediction", "income_indexed", "features").show()
 
 nbaccuracy = evaluator.evaluate(nb_prediction) 
 print("Test accuracy = " + str(nbaccuracy))
+
+#SVM
+from pyspark.ml.classification import LinearSVC
+svm = LinearSVC(labelCol="income_indexed", featuresCol="features")
+svm_model = Pipeline(stages= [indexer_feature]+[indexer_label]+[encoders]+[assembler]+[nb]).fit(train)
+svm_prediction = svm_model.transform(test)
+svm_prediction.select("prediction", "income_indexed", "features").show()
+
+svm_accuracy = evaluator.evaluate(svm_prediction)
+print("Test accuracy = " + str(nbaccuracy)) 
